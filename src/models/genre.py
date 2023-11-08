@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from common import CustomBaseModel
+from models.common import CustomBaseModel
 
 
 class Genre(CustomBaseModel):
