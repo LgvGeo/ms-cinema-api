@@ -1,6 +1,6 @@
 import uuid
 
-from common import CustomBaseModel
+from models.common import CustomBaseModel
 
 
 class MovieForPerson(CustomBaseModel):
