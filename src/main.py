@@ -6,7 +6,7 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films
+from api.v1 import films, genres, persons
 from db import elastic
 from settings import config
 from settings.logger import LOGGING
@@ -31,6 +31,8 @@ app = FastAPI(
 )
 
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
+app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])
+app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
 
 
 if __name__ == '__main__':
