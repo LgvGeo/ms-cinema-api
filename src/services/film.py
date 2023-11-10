@@ -48,19 +48,19 @@ class FilmService:
             if sort_field.startswith('-'):
                 sort_order = 'desc'
             sorts.append({
-                 f"{sort_field.removeprefix('-')}": sort_order
+                 f'{sort_field.removeprefix("-")}': sort_order
             })
             body['sort'] = sorts
 
         if genre:
             filt = {
-              "nested": {
-                "path": "genre",
-                "query": {
-                  "bool": {
-                    "filter": [
+              'nested': {
+                'path': 'genre',
+                'query': {
+                  'bool': {
+                    'filter': [
                       {
-                        "term": {"genre.id": f"{genre}"}
+                        'term': {'genre.id': f'{genre}'}
                       }
                     ]
                   }
@@ -71,16 +71,16 @@ class FilmService:
 
         if title:
             filt = {
-                "match": {"title": f"{title}"}
+                'match': {'title': f'{title}'}
             }
             filters.append(filt)
         if filters:
             query = {
-                 "bool": {
-                      "filter": filters
+                 'bool': {
+                      'filter': filters
                     }
             }
-            body["query"] = query
+            body['query'] = query
 
         result = await self.elastic.search(
             body=body, index='movies',
