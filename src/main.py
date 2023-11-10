@@ -5,9 +5,10 @@ import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from redis.asyncio import Redis
 
 from api.v1 import films, genres, persons
-from db import elastic
+from db import elastic, redis
 from settings import config
 from settings.logger import LOGGING
 
@@ -15,11 +16,14 @@ from settings.logger import LOGGING
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     elstic_conf = config.ElasticsearchSettings()
+    redis_conf = config.RedisSettings()
     elastic.es = AsyncElasticsearch(
         hosts=[f'{elstic_conf.host}:{elstic_conf.port}']
     )
+    redis.redis = Redis(host=redis_conf.host, port=redis_conf.port)
     yield
     await elastic.es.close()
+    await redis.redis.close()
 
 
 app = FastAPI(
