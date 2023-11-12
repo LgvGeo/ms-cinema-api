@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import Optional
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
@@ -7,7 +6,7 @@ from redis.asyncio import Redis
 
 from db.elastic import get_elastic
 from db.redis import get_redis
-from models.person import Person
+from models.service_models.person import Person
 
 PERSON_CACHE_EXPIRE_IN_SECONDS = 5 * 60
 
@@ -17,7 +16,7 @@ class PersonService:
         self.redis = redis
         self.elastic = elastic
 
-    async def get_by_id(self, person_id: str) -> Optional[Person]:
+    async def get_by_id(self, person_id: str) -> Person | None:
         person = await self._get_peson_from_cache(person_id)
         if person:
             return person
@@ -42,7 +41,7 @@ class PersonService:
             page_size: int,
             page_number: int,
             name: str | None = None
-    ) -> Optional[list[Person]]:
+    ) -> list[Person] | None:
         filters = []
         body = {}
 
@@ -67,14 +66,14 @@ class PersonService:
 
     async def _get_person_from_elastic(
             self, person_id: str
-    ) -> Optional[Person]:
+    ) -> Person | None:
         try:
             doc = await self.elastic.get(index='persons', id=person_id)
         except NotFoundError:
             return None
         return Person(**doc['_source'])
 
-    async def _get_peson_from_cache(self, person_id: str) -> Optional[Person]:
+    async def _get_peson_from_cache(self, person_id: str) -> Person | None:
         key = f'person:{person_id}'
         data = await self.redis.get(key)
         if not data:

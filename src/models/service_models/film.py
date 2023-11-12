@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 from models.common import CustomBaseModel
 
@@ -18,10 +17,10 @@ class Movie(CustomBaseModel):
     id: uuid.UUID
     actors: list[PersonForMovie]
     actors_names: list[str]
-    description: Optional[str]
+    description: str | None
     director: list[str]
     genre: list[GenreForMovie]
-    imdb_rating: Optional[float]
+    imdb_rating: float | None
     title: str
     writers: list[PersonForMovie]
     writers_names: list[str]

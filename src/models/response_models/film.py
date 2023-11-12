@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 from models.common import CustomBaseModel
 
@@ -17,10 +16,10 @@ class GenreForMovie(CustomBaseModel):
 class MovieResponse(CustomBaseModel):
     id: uuid.UUID
     actors: list[PersonForMovie]
-    description: Optional[str]
+    description: str | None
     director: list[str]
     genre: list[GenreForMovie]
-    imdb_rating: Optional[float]
+    imdb_rating: float | None
     title: str
     writers: list[PersonForMovie]
 
@@ -28,4 +27,4 @@ class MovieResponse(CustomBaseModel):
 class MoviesListResponse(CustomBaseModel):
     id: uuid.UUID
     title: str
-    imdb_rating: Optional[float]
+    imdb_rating: float | None
