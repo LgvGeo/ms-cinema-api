@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+
+  elastic:
+    image: elasticsearch:8.6.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=true
+      - "ES_JAVA_OPTS=-Xms4096m -Xmx4096m"
+  redis:
+    image: redis:7.2.1-alpine
+  api:
+    depends_on:
+      - elastic
+      - redis
+    build: ../
+    env_file:
+      - ../.env
+  tests:
+    depends_on:
+      - api
+    build: ./
+    env_file:
+      - ./.env
