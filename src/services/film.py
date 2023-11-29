@@ -4,29 +4,22 @@ from functools import lru_cache
 from fastapi import Depends
 
 from db.abstract_cache_storage import CacheStorageInterface
-from db.abstract_loaders import MovieLoaderInterface
-from db.elastic_loaders import get_movie_loader
+from db.abstract_engine import AsyncSearchEngine
+from db.elastic_engine import get_engine
 from db.redis_cache_storage import get_cache_storage
 from models.service_models.film import Movie
+from services.abstract_service import BaseService
 
 
-class FilmService:
+class FilmService(BaseService):
     def __init__(
             self, cache_storage: CacheStorageInterface,
-            db: MovieLoaderInterface
+            db: AsyncSearchEngine
     ):
-        self.cache_storage = cache_storage
-        self.db = db
+        super().__init__(db, cache_storage, Movie)
 
     async def get_by_id(self, film_id: str) -> Movie | None:
-        film = await self.cache_storage.get_from_cache(f'film:{film_id}')
-        if film:
-            return Movie.parse_raw(film)
-        film = await self.db.get_film_by_id(film_id)
-        if film:
-            await self.cache_storage.put_to_cache(
-                f'film:{film_id}', film.model_dump_json())
-        return film
+        return await super().get_by_id(film_id, 'movies', 'film')
 
     async def get_films(
             self,
@@ -36,16 +29,19 @@ class FilmService:
             genre: uuid.UUID | None = None,
             title: str | None = None
     ) -> list[Movie]:
-        films = await self.db.get_films(
-            page_size, page_number,
-            sort, genre, title
+        return await super().get_multiple_elements(
+            'movies',
+            page_size,
+            page_number,
+            sort_field=sort,
+            genre=genre,
+            title=title
         )
-        return films
 
 
 @lru_cache()
 def get_film_service(
         cache_storage: CacheStorageInterface = Depends(get_cache_storage),
-        db: MovieLoaderInterface = Depends(get_movie_loader),
+        db: AsyncSearchEngine = Depends(get_engine),
 ) -> FilmService:
     return FilmService(cache_storage, db)
